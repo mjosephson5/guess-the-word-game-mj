@@ -2,7 +2,7 @@
 const guessedList = document.querySelector(".guessed-letters");
 //button with text "Guess"
 const button = document.querySelector(".guess");
-//text input where player will guess letter - ask Michael
+//text input where player will guess letter 
 const guessLetter = document.querySelector(".letter");
 //empty paragraph where the word in progress will appear
 const wordInProgress = document.querySelector(".word-in-progress")
@@ -76,13 +76,15 @@ if(inputToFunction === "") {
 
 //Create a function to capture input to make sure letter's havent been guessed
 function makeGuess (letter) {
-    //convert letter parameter to uppercase
+    //convert letter guess parameter to uppercase on screen
     const uppercaseLetter = letter.toUpperCase()
     //does array already contain the letter being guessed
     if(guessedLetters.includes(uppercaseLetter)) {
         message.innerText = "You already guessed that letter, try a different letter."
     } else {
         guessedLetters.push(uppercaseLetter)
+        showGuessedLetters();
+        updateWordInProgress(guessedLetters);
     };
    console.log({guessedLetters});
 }
@@ -114,6 +116,58 @@ function firstLetter(word) {
     }
   };
   
+//Create a function to update the page to show the guessed letters
+function showGuessedLetters () {
+    //empty innerHTML of the ul where player's guessed letters will display
+    guessedList.innerHTML = "";
+    //create a new list item for each letter inside guessedLetters array
+    guessedLetters.forEach(function(letter,index){
+        console.log("Before anything", {letter, guessedList})
+        let listItemOfLetters = document.createElement("li");
+        //add new list item to unordered list
+        console.log("After creating list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+        listItemOfLetters.innerText = letter;
+        console.log("After updating inner text", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+        guessedList.append(listItemOfLetters);
+        console.log("After appending list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+        console.log(listItemOfLetters);
+    }) 
+};
+
+//Create a function to update the word in progress - swap out circle symbols for correctly guessed letters
+function updateWordInProgress (guessedLetters) {
+    //change the word variable to uppercase - didn't we do that on line 80?
+    const wordUpper = word.toUpperCase();
+    //split the word string into an array so that the letter can appear in guessedLetters array
+    const wordArray = wordUpper.split("");
+    //check if wordArray contains any letters from guessedLetters array
+    //Iterate over guessedLetters arraY
+    const newArray = [];
+    //create new string of correct characters and circles where character hasn't been guessed
+    for(let correctLetter of wordArray){
+      //Compare each letter of guessedLetters array to each letter of wordArray
+      if(guessedLetters.includes(correctLetter)){
+       //if it includes letter swap out circle symbol for letter
+       newArray.push(correctLetter)
+
+      } else {
+        newArray.push("●");
+      }
+      //console.log(newArray)
+    }
+    //print to window
+    const newArrayString = newArray.join("");
+    wordInProgress.innerText = newArrayString
+   
+};
+
+
+
+
+
+
+
+
   // 'cat' -> 'c'
   const test1 = firstLetter('cat');
   const expect1 = 'c';
