@@ -7,7 +7,7 @@ const guessLetter = document.querySelector(".letter");
 //empty paragraph where the word in progress will appear
 const wordInProgress = document.querySelector(".word-in-progress")
 //empty paragraph where the remaining guesses will display
-const remainingGuesses = document.querySelector(".remaining")
+const remainingGuessesElement = document.querySelector(".remaining")
 //span inside the paragraph where remaining guesses will display
 const span = document.querySelector(".remaining span");
 //empty paragraph where messages will appear when the player guesses a letter
@@ -21,10 +21,14 @@ const word = "magnolia"
 //contains all the letters the player guesses
 const guessedLetters = [];
 
+//amount of guesses remaining set to ,8, max amount of guesses player can make
+let remainingGuesses = 8;
+
 //console.log("remaining guesses", remainingGuesses);
 
-//update "words-in-progress" element with circles to represent each letter in word
+//update "word-in-progress" element with circles to represent each letter in word
 function placeholder(potatoBox) {
+    console.log("calling placeholder")
     //console.log(guessedWord);
     let emptyStickyNote = " ";
     for(let potato of potatoBox) {
@@ -60,12 +64,11 @@ button.addEventListener("click", function(e){
 function playersInput (inputToFunction) {
 //regular expression to check that input is only a letter
 const acceptedLetter = /[a-zA-Z]/
-//check for different scenarios - originally I put "guessLetter" instead of "input"
+//check for different scenarios
 if(inputToFunction === "") {
     message.innerText = "Please enter a letter";
 } else if(inputToFunction.length > 1 ) {
     message.innerText = "Please only enter one letter at a time";
-    //this scenario is not working below
 } else if(!inputToFunction.match(acceptedLetter)) {
     message.innerText ="Letters only, please.";
 } else {
@@ -74,7 +77,7 @@ if(inputToFunction === "") {
 }
 };
 
-//Create a function to capture input to make sure letter's havent been guessed
+//Create a function to capture input to make sure letters havent been guessed
 function makeGuess (letter) {
     //convert letter guess parameter to uppercase on screen
     const uppercaseLetter = letter.toUpperCase()
@@ -84,6 +87,7 @@ function makeGuess (letter) {
     } else {
         guessedLetters.push(uppercaseLetter)
         showGuessedLetters();
+        countGuessesRemaining(uppercaseLetter);
         updateWordInProgress(guessedLetters);
     };
    console.log({guessedLetters});
@@ -91,10 +95,9 @@ function makeGuess (letter) {
 
 
 
-//
 // write a frunction that returns the first letter of a string
 
-// build function that takes oen string argument
+// build function that takes one string argument
 function firstLetter(word) {
     // select first letter from string save to variable
     // if (typeof word === 'string') {
@@ -158,9 +161,36 @@ function updateWordInProgress (guessedLetters) {
     //print to window
     const newArrayString = newArray.join("");
     wordInProgress.innerText = newArrayString
+    console.log({newArrayString})
+    didPlayerWin();
    
 };
 
+//Create a function to count guesses remaining
+function countGuessesRemaining (guess) {
+    //grab the "word" and make it uppercase - didn't we do this in line 141?
+    const uppercaseWord = word.toUpperCase()
+    //find out if word contains the "guess"
+    if(uppercaseWord.includes(guess)) {
+        //let player know the word contains their guess
+        message.innerText = `Good guess! The word has the letter ${guess} in it.`
+    } else if(!uppercaseWord.includes(guess)) {
+       //if guess does not include letter from the word, let the player know and subtract 1 from their remainingGuesses
+        message.innerText = `Whoops, the word does not contain the letter ${guess} `
+        remainingGuesses -= 1; 
+    }
+}
+
+//Create a function to check if the player won
+function didPlayerWin () {
+    //does word in progress match the word they should guess
+    if(wordInProgress.innerText === word.toUpperCase()) {
+      //player has won, add the "win" class to the empty paragraph where messages appear when they guess a letter
+      message.classList.add("win");
+      //update paragraph's contents
+      message.innerHTML = "<p class='highlight'>You guessed correct the word! Congrats!</p>";
+    }
+}
 
 
 
