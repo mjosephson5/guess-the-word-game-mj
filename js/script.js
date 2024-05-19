@@ -16,30 +16,59 @@ const message = document.querySelector(".message");
 const playAgainButton = document.querySelector(".play-again");
 
 //starting word, "magnolia"
-const word = "magnolia"
+let word = "magnolia"
 
 //contains all the letters the player guesses
-const guessedLetters = [];
+let guessedLetters = [];
 
 //amount of guesses remaining set to ,8, max amount of guesses player can make
 let remainingGuesses = 8;
+
+//add an async function called getWord() to retrieve words from API
+async function getWord() {
+    const res = await fetch(
+        "https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt"
+    );
+ const wordsRetrieved = await res.text()
+ //console.log(wordsRetrieved)
+ //create an array of words that were retrieved from API
+ const wordsRetrievedArray = wordsRetrieved.split("\n");
+ //console.log(wordsRetrievedArray);
+
+ //grab random word index from array
+ const randomWordIndex = Math.floor(Math.random() * wordsRetrievedArray.length)
+ //pull random word from the array and remove whitespace around random word with trim() method -HELP
+ const newRandomWord = wordsRetrievedArray[randomWordIndex]
+ const newRandomWordTrimmed = newRandomWord.trim()
+ //console.log({newRandomTrimmedWord})
+ //call placeholder function and pass it the variable holding random trimmed word
+ word = newRandomWordTrimmed
+console.log(word)
+ placeholder(word)
+}
+//placeholder(word);
+
+
+
 
 //console.log("remaining guesses", remainingGuesses);
 
 //update "word-in-progress" element with circles to represent each letter in word
 function placeholder(potatoBox) {
-    console.log("calling placeholder")
+   // console.log("calling placeholder")
     //console.log(guessedWord);
     let emptyStickyNote = " ";
+   
+  //  console.log({potatoBox})
     for(let potato of potatoBox) {
+       // console.log({potato})
        //emptyStickyNote += "●";
        wordInProgress.innerText  += "●"; 
        //console.log(emptyStickNote);
     }
-    
 };
-placeholder(word);
-//placeholder("unicorn");
+getWord()
+
 
 //add eventListener for guess button and log input/letter to console, then empty value/input
 button.addEventListener("click", function(e){
@@ -47,14 +76,14 @@ button.addEventListener("click", function(e){
     e.preventDefault();
     //capture input
     let usersInput = guessLetter.value;
-    console.log(guessLetter.value);
+    //console.log(guessLetter.value);
     //empty value of input
     guessLetter.value = "";
     //empty text of message element
     const message = "";
 // validate is equal to the return of playersInput
     const validate = playersInput(usersInput);
-    console.log({validate});
+    //console.log({validate});
     if(validate) {
         makeGuess(usersInput)
     }
@@ -90,7 +119,7 @@ function makeGuess (letter) {
         countGuessesRemaining(uppercaseLetter);
         updateWordInProgress(guessedLetters);
     };
-   console.log({guessedLetters});
+   //console.log({guessedLetters});
 }
 
 
@@ -125,15 +154,15 @@ function showGuessedLetters () {
     guessedList.innerHTML = "";
     //create a new list item for each letter inside guessedLetters array
     guessedLetters.forEach(function(letter,index){
-        console.log("Before anything", {letter, guessedList})
+        //console.log("Before anything", {letter, guessedList})
         let listItemOfLetters = document.createElement("li");
         //add new list item to unordered list
-        console.log("After creating list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+        //console.log("After creating list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
         listItemOfLetters.innerText = letter;
-        console.log("After updating inner text", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+        //console.log("After updating inner text", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
         guessedList.append(listItemOfLetters);
-        console.log("After appending list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
-        console.log(listItemOfLetters);
+        //console.log("After appending list item of letters", {letter, guessedList: guessedList.innerHTML, listItemOfLetters:listItemOfLetters.innerHTML})
+       // console.log(listItemOfLetters);
     }) 
 };
 
@@ -161,25 +190,41 @@ function updateWordInProgress (guessedLetters) {
     //print to window
     const newArrayString = newArray.join("");
     wordInProgress.innerText = newArrayString
-    console.log({newArrayString})
+    //console.log({newArrayString})
     didPlayerWin();
+    
    
 };
 
-//Create a function to count guesses remaining
+
+//Create new function to count the guesses remaining and that will accept the guess input as a parameter
 function countGuessesRemaining (guess) {
-    //grab the "word" and make it uppercase - didn't we do this in line 141?
+    //grab the "word" and make it uppercase 
     const uppercaseWord = word.toUpperCase()
     //find out if word contains the "guess"
     if(uppercaseWord.includes(guess)) {
         //let player know the word contains their guess
         message.innerText = `Good guess! The word has the letter ${guess} in it.`
     } else if(!uppercaseWord.includes(guess)) {
-       //if guess does not include letter from the word, let the player know and subtract 1 from their remainingGuesses
+        //if guess does not include letter from the word, let the player know and subtract 1 from their remainingGuesses
         message.innerText = `Whoops, the word does not contain the letter ${guess} `
-        remainingGuesses -= 1; 
-    }
+        remainingGuesses = remainingGuesses - 1; 
+        span.innerText = ` ${remainingGuesses} guesses `
+    } if(remainingGuesses === 1) {
+        //If player has one guess, update the span inside the paragraph where the remaining guesses will display to tell player they have one guess
+        remainingGuessesElement.innerText = "You have only one guess remaining, make it a good one!"
+        message.innerText = `Whoops, the word does not contain the letter ${guess} `}
+      else if(remainingGuesses === 0) {
+         //if they have no guesses remaining, update message to say game is over and what word is
+       message.innerText = `Sorry, the game is over. The word is ${word}.`
+    startOver()
 }
+       
+    }
+        
+
+
+
 
 //Create a function to check if the player won
 function didPlayerWin () {
@@ -189,30 +234,46 @@ function didPlayerWin () {
       message.classList.add("win");
       //update paragraph's contents
       message.innerHTML = "<p class='highlight'>You guessed correct the word! Congrats!</p>";
+      startOver();
     }
+    
+}
+
+function startOver () {
+    //hide Guess button
+    button.classList.add("hide");
+    //hide the paragraph where remaining guesses will display
+    remainingGuessesElement.classList.add("hide");
+    //hide the unordered list where the guessed letters appear
+     guessedList.classList.add("hide");
+    //show the Play Again button
+    playAgainButton.classList.remove("hide");
 }
 
 
-
-
-
-
-
-  // 'cat' -> 'c'
-  const test1 = firstLetter('cat');
-  const expect1 = 'c';
-  // 'Cat' -> 'C'
-  const test2 = firstLetter('Cat');
-  const expect2 = 'C';
-  // // 2 -> return 'invalid input'
-  // const test3 = firstLetter(2);
-  // const expect3 = 'YOU ARE A DUMB BITCH';
-  // // [1,2,3] -> return 'invalid input'
-  // const test4 = firstLetter([1, 2, 3]);
-  // const expect4 = 'YOU ARE A DUMB BITCH';
-  
-  console.log(validate(test1, expect1));
-  console.log(validate(test2, expect2));
-  // console.log(validate(test3, expect3));
-  // console.log(validate(test4, expect4));
-  
+//add click event to Play Again button
+playAgainButton.addEventListener("click", function (){
+    //remove the class of "win" applied to the message element
+     message.classList.remove("win");
+    //empty the message text 
+     message.innerText = "";
+    //empty unordered list where the guessed letters appear 
+     guessedList.innerText = "";
+     wordInProgress.innerText = ""
+    //set remaining guesses back to 8
+    remainingGuesses = 8;
+   //set your guessedLetters global variable back to an empty array
+    guessedLetters.innerText = []
+   //populate the text of the span inside the paragraph where the remaining guesses display with the new amount of guesses (8)
+    span.innerText = '8 guesses'
+   //show the Guess button
+    button.classList.remove("hide");
+   //show the paragraph with remaining guesses
+    remainingGuessesElement.classList.remove("hide")
+   //show the guessed letters
+   guessedList.classList.remove("hide")
+   //hide "play again" button
+   playAgainButton.classList.add("hide")
+   //call the getWord() async function so player can play again with new word
+   getWord()
+})
